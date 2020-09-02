@@ -71,7 +71,10 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Create new awsClient for this instance to manage it //
 	awsClient, err := ec2.NewAWSClient(*secret, instance.Spec.Region)
-
+	if err != nil {
+		log.Info("Error creating AWS Client")
+		return ctrl.Result{}, err
+	}
 	// Launch a new instance //
 	if instance.ObjectMeta.DeletionTimestamp.IsZero() {
 		// Check if instance needs to be launched //
