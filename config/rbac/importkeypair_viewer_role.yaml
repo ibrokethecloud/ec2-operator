@@ -1,0 +1,20 @@
+# permissions for end users to view importkeypairs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: importkeypair-viewer-role
+rules:
+- apiGroups:
+  - ec2.cattle.io
+  resources:
+  - importkeypairs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ec2.cattle.io
+  resources:
+  - importkeypairs/status
+  verbs:
+  - get

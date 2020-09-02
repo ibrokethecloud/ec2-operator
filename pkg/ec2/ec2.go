@@ -65,6 +65,7 @@ func (a *AWSClient) CreateInstance(instance ec2v1alpha1.Instance) (status ec2v1a
 			},
 			UserData:         aws.String(instance.Spec.UserData),
 			SecurityGroupIds: aws.StringSlice(instance.Spec.SecurityGroupIDS),
+			KeyName:          aws.String(instance.Spec.KeyName),
 		})
 	}
 
@@ -148,4 +149,47 @@ func (a *AWSClient) UpdateTags(instance ec2v1alpha1.Instance) (status ec2v1alpha
 		status.Status = Provisioned
 	}
 	return status, nil
+}
+
+func (a *AWSClient) ImportKeyPair(keypair ec2v1alpha1.ImportKeyPair) (status ec2v1alpha1.ImportKeyPairStatus, err error) {
+	if len(keypair.Spec.PublicKey) == 0 {
+		return status, fmt.Errorf("Empty KeyPair specified")
+	}
+
+	// tag instance //
+	tags := []*awsec2.Tag{}
+
+	for _, tagDetails := range keypair.Spec.TagSpecifications {
+		tags = append(tags, &awsec2.Tag{Key: aws.String(tagDetails.Name), Value: aws.String(tagDetails.Value)})
+	}
+	//Default tag
+	tags = append(tags, &awsec2.Tag{Key: aws.String("Name"), Value: aws.String(keypair.Name)})
+
+	output, err := a.svc.ImportKeyPair(&ec2.ImportKeyPairInput{
+		KeyName:           aws.String(keypair.Name),
+		PublicKeyMaterial: []byte(keypair.Spec.PublicKey),
+		TagSpecifications: []*awsec2.TagSpecification{&awsec2.TagSpecification{
+			ResourceType: aws.String("key-pair"),
+			Tags:         tags,
+		},
+		},
+	})
+
+	if err != nil {
+		status.Status = "error"
+		return status, err
+	}
+
+	status.Status = "provisioned"
+	status.KeyPairID = *output.KeyPairId
+
+	return status, nil
+}
+
+func (a *AWSClient) DeleteKeyPair(keypair ec2v1alpha1.ImportKeyPair) (err error) {
+	_, err = a.svc.DeleteKeyPair(&ec2.DeleteKeyPairInput{
+		KeyPairId: aws.String(keypair.Status.KeyPairID),
+	})
+
+	return err
 }

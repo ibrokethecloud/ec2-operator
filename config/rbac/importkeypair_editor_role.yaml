@@ -1,0 +1,24 @@
+# permissions for end users to edit importkeypairs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: importkeypair-editor-role
+rules:
+- apiGroups:
+  - ec2.cattle.io
+  resources:
+  - importkeypairs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ec2.cattle.io
+  resources:
+  - importkeypairs/status
+  verbs:
+  - get

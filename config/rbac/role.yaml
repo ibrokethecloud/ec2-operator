@@ -9,6 +9,26 @@ rules:
 - apiGroups:
   - ec2.cattle.io
   resources:
+  - importkeypairs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ec2.cattle.io
+  resources:
+  - importkeypairs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ec2.cattle.io
+  resources:
   - instances
   verbs:
   - create

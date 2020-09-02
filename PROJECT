@@ -4,4 +4,7 @@ resources:
 - group: ec2
   kind: Instance
   version: v1alpha1
+- group: ec2
+  kind: ImportKeyPair
+  version: v1alpha1
 version: "2"
