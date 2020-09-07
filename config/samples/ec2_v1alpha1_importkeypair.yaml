@@ -3,5 +3,10 @@ kind: ImportKeyPair
 metadata:
   name: importkeypair-sample
 spec:
-  # Add fields here
-  foo: bar
+  keyName: mycustom-import-keypair
+  publicKey: base64encodedkey
+  tagSpecification:
+    - name: MyTag
+      value: MyValue
+  secret: k8s-secret-with-aws-keypair
+  region: aws-region
