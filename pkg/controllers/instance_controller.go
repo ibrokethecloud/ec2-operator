@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"time"
 
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
 	"github.com/ibrokethecloud/ec2-operator/pkg/ec2"
 
 	corev1 "k8s.io/api/core/v1"
@@ -51,7 +53,7 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("instance", req.NamespacedName)
 
-	var instance ec2v1alpha1.Instance
+	instance := ec2v1alpha1.Instance{}
 
 	if err := r.Get(ctx, req.NamespacedName, &instance); err != nil {
 		if errors.IsNotFound(err) {
@@ -79,7 +81,8 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if instance.ObjectMeta.DeletionTimestamp.IsZero() {
 		// Check if instance needs to be launched //
 		instanceStatus := ec2v1alpha1.InstanceStatus{}
-		switch status := instance.Status.Status; status {
+		currentStatus := instance.Status.DeepCopy()
+		switch status := currentStatus.Status; status {
 		case "":
 			log.Info("Creating instance")
 			instanceStatus, err = awsClient.CreateInstance(instance)
@@ -99,14 +102,20 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 
 		instance.Status = instanceStatus
-		if !containsString(instance.ObjectMeta.Finalizers, instanceFinalizer) {
-			instance.ObjectMeta.Finalizers = append(instance.ObjectMeta.Finalizers, instanceFinalizer)
-		}
+		controllerutil.AddFinalizer(&instance, instanceFinalizer)
 		if err = r.Update(ctx, &instance); err != nil {
-			log.Error(fmt.Errorf("Error while updating status and application of finalizer"), instance.ObjectMeta.Name)
-			// Not going to requeue since the instance has already been provisioned //
+			log.Error(fmt.Errorf("Error while updating status of instance"), instance.ObjectMeta.Name)
+			// there is an edge case when update fails after launch an instance //
+			// new status should have been updated to WaitForTag, however due to failure
+			// the re-provisioning logic will re-run when the object falls through the
+			// switch block. So we are going to take the WaitForTag status and delete
+			// the instance
+			if instance.Status.Status == ec2.WaitForTag {
+				_ = awsClient.DeleteInstance(instance)
+			}
 			return ctrl.Result{}, err
 		}
+
 	} else {
 		if containsString(instance.ObjectMeta.Finalizers, instanceFinalizer) {
 			// lets delete the instance //
@@ -117,7 +126,7 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			}
 		}
 
-		instance.ObjectMeta.Finalizers = removeString(instance.ObjectMeta.Finalizers, instanceFinalizer)
+		controllerutil.RemoveFinalizer(&instance, instanceFinalizer)
 		if err := r.Update(ctx, &instance); err != nil {
 			return ctrl.Result{}, err
 		}

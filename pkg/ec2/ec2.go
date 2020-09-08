@@ -54,7 +54,7 @@ func (a *AWSClient) CreateInstance(instance ec2v1alpha1.Instance) (status ec2v1a
 	}
 
 	if instance.Status.Status == "" {
-		reservation, err = a.svc.RunInstances(&awsec2.RunInstancesInput{
+		runInput := &awsec2.RunInstancesInput{
 			ImageId:      aws.String(instance.Spec.ImageID),
 			InstanceType: aws.String(instance.Spec.InstanceType),
 			MinCount:     aws.Int64(1),
@@ -65,8 +65,11 @@ func (a *AWSClient) CreateInstance(instance ec2v1alpha1.Instance) (status ec2v1a
 			},
 			UserData:         aws.String(instance.Spec.UserData),
 			SecurityGroupIds: aws.StringSlice(instance.Spec.SecurityGroupIDS),
-			KeyName:          aws.String(instance.Spec.KeyName),
-		})
+		}
+		if len(instance.Spec.KeyName) > 0 {
+			runInput = runInput.SetKeyName(instance.Spec.KeyName)
+		}
+		reservation, err = a.svc.RunInstances(runInput)
 	}
 
 	if err != nil {
