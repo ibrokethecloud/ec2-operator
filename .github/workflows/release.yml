@@ -35,7 +35,7 @@ jobs:
 
       - name: Package chart
         run: |
-          helm package ./charts/ec2-operator --app-version ${{ steps.get_version.outputs.version }} --version ${{ steps.get_version.outputs.version }}
+          helm package ./chart/ec2-operator --app-version ${{ steps.get_version.outputs.version }} --version ${{ steps.get_version.outputs.version }}
           ls -l *.tgz
 
       - name: Set up QEMU
