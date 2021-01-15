@@ -33,12 +33,10 @@ jobs:
         with:
           version: v3.4.0
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.1.0
-        with:
-          charts_dir: ./chart/ec2-operator
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Package chart
+        run: |
+          helm package ./charts/ec2-operator --app-version ${{ steps.get_version.outputs.version }} --version ${{ steps.get_version.outputs.version }}
+          ls -l *.tgz
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -59,3 +57,25 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: "gmehta3/ec2-operator:${{ steps.get_version.outputs.version }}"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - name: Upload Asset
+        id: helm-chart-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ec2-operator-${{ steps.get_version.outputs.version }}.tgz
+          asset_name: ec2-operator--${{ steps.get_version.outputs.version }}.tgz
+          asset_content_type: application/zip
