@@ -54,6 +54,10 @@ type InstanceStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:printcolumn:name="InstanceId",type="string",JSONPath=`.status.instanceID`
+// +kubebuilder:printcolumn:name="PublicIP",type="string",JSONPath=`.status.publicIP`
+// +kubebuilder:printcolumn:name="PrivateIP",type="string",JSONPath=`.status.privateIP`
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=`.status.status`
 
 // Instance is the Schema for the instances API
 type Instance struct {

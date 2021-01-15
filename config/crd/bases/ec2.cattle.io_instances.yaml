@@ -8,6 +8,19 @@ metadata:
   creationTimestamp: null
   name: instances.ec2.cattle.io
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.instanceID
+    name: InstanceId
+    type: string
+  - JSONPath: .status.publicIP
+    name: PublicIP
+    type: string
+  - JSONPath: .status.privateIP
+    name: PrivateIP
+    type: string
+  - JSONPath: .status.status
+    name: Status
+    type: string
   group: ec2.cattle.io
   names:
     kind: Instance
@@ -15,6 +28,7 @@ spec:
     plural: instances
     singular: instance
   scope: Namespaced
+  subresources: {}
   validation:
     openAPIV3Schema:
       description: Instance is the Schema for the instances API
