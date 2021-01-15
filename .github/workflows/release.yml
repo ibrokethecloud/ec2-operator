@@ -57,6 +57,5 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/386
           push: true
           tags: "gmehta3/ec2-operator:${{ steps.get_version.outputs.version }}"
