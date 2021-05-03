@@ -23,7 +23,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/ibrokethecloud/ec2-operator/pkg/ec2"
+	"github.com/hobbyfarm/ec2-operator/pkg/ec2"
 
 	corev1 "k8s.io/api/core/v1"
 
@@ -35,7 +35,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	ec2v1alpha1 "github.com/ibrokethecloud/ec2-operator/pkg/api/v1alpha1"
+	ec2v1alpha1 "github.com/hobbyfarm/ec2-operator/pkg/api/v1alpha1"
 )
 
 // InstanceReconciler reconciles a Instance object

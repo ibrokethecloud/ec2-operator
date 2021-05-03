@@ -26,8 +26,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	ec2v1alpha1 "github.com/ibrokethecloud/ec2-operator/pkg/api/v1alpha1"
-	"github.com/ibrokethecloud/ec2-operator/pkg/controllers"
+	ec2v1alpha1 "github.com/hobbyfarm/ec2-operator/pkg/api/v1alpha1"
+	"github.com/hobbyfarm/ec2-operator/pkg/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

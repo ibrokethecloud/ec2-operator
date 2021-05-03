@@ -1,4 +1,4 @@
-module github.com/ibrokethecloud/ec2-operator
+module github.com/hobbyfarm/ec2-operator
 
 go 1.13
 

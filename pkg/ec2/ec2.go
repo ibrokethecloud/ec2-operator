@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	awsec2 "github.com/aws/aws-sdk-go/service/ec2"
-	ec2v1alpha1 "github.com/ibrokethecloud/ec2-operator/pkg/api/v1alpha1"
+	ec2v1alpha1 "github.com/hobbyfarm/ec2-operator/pkg/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 

@@ -1,5 +1,5 @@
 domain: cattle.io
-repo: github.com/ibrokethecloud/ec2-operator
+repo: github.com/hobbyfarm/ec2-operator
 resources:
 - group: ec2
   kind: Instance
