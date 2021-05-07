@@ -46,7 +46,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ github.repository}}:${{ steps.get_version.outputs.version }}"
+          tags: ${{ github.repository}}:${{ steps.get_version.outputs.version }}
 
       - name: Create Release
         id: create_release
