@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: gmehta3/ec2-operator
+  repository: hobbyfarm/ec2-operator
   pullPolicy: Always
 
 imagePullSecrets: []
