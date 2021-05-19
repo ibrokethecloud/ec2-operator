@@ -1,8 +1,10 @@
 on:
   push:
     # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches:
+    - master
+    paths:
+    - '**/Chart.yaml'
 
 name: Create Release
 
@@ -22,6 +24,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Check if version was bumped
+        run: git diff HEAD~1 charts/hobbyfarm/Chart.yaml | grep 'version:'
 
       - name: Configure Git
         run: |
