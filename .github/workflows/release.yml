@@ -1,10 +1,8 @@
 on:
   push:
-    # Sequence of patterns matched against refs/tags
-    branches:
-    - master
-    paths:
-    - '**/Chart.yaml'
+    # Sequence of patterns matched against refs/tags\
+    tags:
+    - "v*"
 
 name: Create Release
 
@@ -23,10 +21,7 @@ jobs:
         id: go
 
       - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Check if version was bumped
-        run: git diff HEAD~1 -- chart/ec2-operator/Chart.yaml | grep 'version:'
+        uses: actions/checkout@v2
 
       - name: Configure Git
         run: |
@@ -61,7 +56,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: true
+          draft: false
           prerelease: false
 
       - name: Package and release chart
