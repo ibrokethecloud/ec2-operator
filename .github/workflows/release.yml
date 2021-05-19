@@ -23,9 +23,7 @@ jobs:
         id: go
 
       - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
+        uses: actions/checkout@v1
 
       - name: Check if version was bumped
         run: git diff HEAD~1 -- charts/hobbyfarm/Chart.yaml | grep 'version:'
