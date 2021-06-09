@@ -23,15 +23,15 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/hobbyfarm/ec2-operator/pkg/ec2"
-
 	"github.com/go-logr/logr"
+	"github.com/hobbyfarm/ec2-operator/pkg/ec2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlCtrl "sigs.k8s.io/controller-runtime/pkg/controller"
 
 	ec2v1alpha1 "github.com/hobbyfarm/ec2-operator/pkg/api/v1alpha1"
 )
@@ -39,8 +39,9 @@ import (
 // ImportKeyPairReconciler reconciles a ImportKeyPair object
 type ImportKeyPairReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log     logr.Logger
+	Scheme  *runtime.Scheme
+	Threads int
 }
 
 // +kubebuilder:rbac:groups=ec2.cattle.io,resources=importkeypairs,verbs=get;list;watch;create;update;patch;delete
@@ -113,6 +114,8 @@ func (r *ImportKeyPairReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 
 func (r *ImportKeyPairReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		WithOptions(ctrlCtrl.Options{
+			MaxConcurrentReconciles: r.Threads}).
 		For(&ec2v1alpha1.ImportKeyPair{}).
 		Complete(r)
 }

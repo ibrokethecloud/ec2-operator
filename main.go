@@ -34,9 +34,13 @@ import (
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
+	threads  int
 )
 
 func init() {
+
+	flag.IntVar(&threads, "threads", 10, "concurrent reconciles to run")
+	flag.Parse()
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = ec2v1alpha1.AddToScheme(scheme)
@@ -67,17 +71,19 @@ func main() {
 	}
 
 	if err = (&controllers.InstanceReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Instance"),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("Instance"),
+		Scheme:  mgr.GetScheme(),
+		Threads: threads,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Instance")
 		os.Exit(1)
 	}
 	if err = (&controllers.ImportKeyPairReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("ImportKeyPair"),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("ImportKeyPair"),
+		Scheme:  mgr.GetScheme(),
+		Threads: threads,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ImportKeyPair")
 		os.Exit(1)

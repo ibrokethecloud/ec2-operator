@@ -21,17 +21,17 @@ import (
 	"fmt"
 	"time"
 
+	ctrlCtrl "sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/hobbyfarm/ec2-operator/pkg/ec2"
 
 	corev1 "k8s.io/api/core/v1"
 
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
-
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -41,8 +41,9 @@ import (
 // InstanceReconciler reconciles a Instance object
 type InstanceReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log     logr.Logger
+	Scheme  *runtime.Scheme
+	Threads int
 }
 
 // +kubebuilder:rbac:groups=ec2.cattle.io,resources=instances,verbs=get;list;watch;create;update;patch;delete
@@ -147,6 +148,9 @@ func (r *InstanceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 func (r *InstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		WithOptions(ctrlCtrl.Options{
+			MaxConcurrentReconciles: r.Threads,
+		}).
 		For(&ec2v1alpha1.Instance{}).
 		Complete(r)
 }
